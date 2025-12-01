@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>msckf_vio</name>
+  <version>0.0.1</version>
+  <description>Multi-State Constraint Kalman Filter for Vision-aided Inertial Navigation</description>
+
+  <maintainer email="sunke.polyu@gmail.com">Ke Sun</maintainer>
+  <license>Penn Software License</license>
+
+  <author email="sunke.polyu@gmail.com">Ke Sun</author>
+  <author email="kartikmohta@gmail.com">Kartik Mohta</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>image_transport</depend>
+  <depend>cv_bridge</depend>
+  <depend>message_filters</depend>
+  <depend>pcl_conversions</depend>
+  <depend>pcl_ros</depend>
+  <depend>eigen3_cmake_module</depend>
+  <depend>OpenCV</depend>
+  <depend>boost</depend>
+  <depend>suitesparse</depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <test_depend>ament_cmake_gtest</test_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+</package>
