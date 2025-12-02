@@ -102,7 +102,9 @@ map<int, double> MsckfVio::chi_squared_test_table;
 MsckfVio::MsckfVio(const rclcpp::NodeOptions& options):
   rclcpp::Node("msckf_vio", options),
   is_gravity_set(false),
-  is_first_img(true) {
+  is_first_img(true),
+  keep_feature_history_(false),
+  feature_history_max_points_(0) {
   tf_pub = std::make_shared<tf2_ros::TransformBroadcaster>(*this);
   if (!initialize()) {
     throw std::runtime_error("Failed to initialize MSCKF VIO");
@@ -190,6 +192,12 @@ bool MsckfVio::loadParameters() {
 
   // Maximum number of camera states to be stored
   max_cam_state_size = declare_and_get<int>("max_cam_state_size", 30);
+  keep_feature_history_ =
+      declare_and_get<bool>("feature_history.enabled", false);
+  int history_points =
+      declare_and_get<int>("feature_history.max_points", 5000);
+  feature_history_max_points_ =
+      history_points > 0 ? static_cast<size_t>(history_points) : 0;
 
   RCLCPP_INFO(get_logger(), "===========================================");
   RCLCPP_INFO(get_logger(), "fixed frame id: %s", fixed_frame_id.c_str());
@@ -205,6 +213,8 @@ bool MsckfVio::loadParameters() {
   RCLCPP_INFO(get_logger(), "acc noise: %.10f", IMUState::acc_noise);
   RCLCPP_INFO(get_logger(), "acc bias noise: %.10f", IMUState::acc_bias_noise);
   RCLCPP_INFO(get_logger(), "observation noise: %.10f", Feature::observation_noise);
+  RCLCPP_INFO(get_logger(), "keep feature history: %d (max %zu points)",
+      keep_feature_history_, feature_history_max_points_);
   RCLCPP_INFO(get_logger(), "initial velocity: %f, %f, %f",
       state_server.imu_state.velocity(0),
       state_server.imu_state.velocity(1),
@@ -388,6 +398,7 @@ void MsckfVio::resetCallback(
 
   // Clear all exsiting features in the map.
   map_server.clear();
+  feature_history_.clear();
 
   // Clear the IMU msg buffer.
   imu_msg_buffer.clear();
@@ -1153,6 +1164,19 @@ void MsckfVio::removeLostFeatures() {
   // Perform the measurement update step.
   measurementUpdate(H_x, r);
 
+  // Optionally stash processed feature positions for visualization.
+  if (keep_feature_history_ && feature_history_max_points_ > 0) {
+    for (const auto& feature_id : processed_feature_ids) {
+      const auto feature_iter = map_server.find(feature_id);
+      if (feature_iter == map_server.end()) continue;
+      if (!feature_iter->second.is_initialized) continue;
+      feature_history_.push_back(feature_iter->second.position);
+      if (feature_history_.size() > feature_history_max_points_) {
+        feature_history_.pop_front();
+      }
+    }
+  }
+
   // Remove all processed features from the map.
   for (const auto& feature_id : processed_feature_ids)
     map_server.erase(feature_id);
@@ -1360,6 +1384,7 @@ void MsckfVio::onlineReset() {
 
   // Clear all exsiting features in the map.
   map_server.clear();
+  feature_history_.clear();
 
   // Reset the state covariance.
   double gyro_bias_cov, acc_bias_cov, velocity_cov;
@@ -1480,6 +1505,14 @@ void MsckfVio::publish(const rclcpp::Time& time) {
     if (feature.is_initialized) {
       Vector3d feature_position =
         IMUState::T_imu_body.linear() * feature.position;
+      feature_msg_ptr->points.push_back(pcl::PointXYZ(
+            feature_position(0), feature_position(1), feature_position(2)));
+    }
+  }
+  if (keep_feature_history_) {
+    for (const auto& position_world : feature_history_) {
+      Vector3d feature_position =
+        IMUState::T_imu_body.linear() * position_world;
       feature_msg_ptr->points.push_back(pcl::PointXYZ(
             feature_position(0), feature_position(1), feature_position(2)));
     }

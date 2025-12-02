@@ -11,6 +11,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <deque>
 #include <string>
 #include <memory>
 #include <Eigen/Dense>
@@ -241,6 +242,12 @@ class MsckfVio : public rclcpp::Node {
     Eigen::Isometry3d mocap_initial_frame;
 
     nav_msgs::msg::Path path_msg_;
+
+    // Debug/local map visualization
+    bool keep_feature_history_;
+    size_t feature_history_max_points_;
+    std::deque<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>>
+      feature_history_;
 
     template<typename T>
     T declare_and_get(const std::string &name, const T &default_value) {
