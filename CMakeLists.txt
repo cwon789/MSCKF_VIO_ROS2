@@ -52,11 +52,28 @@ include_directories(
   ${SUITESPARSE_INCLUDE_DIRS}
 )
 
+# Core library - ROS independent
+add_library(msckf_vio_core SHARED
+  src/core/state_initialization.cpp
+  src/core/conversion_utils.cpp
+  src/core/msckf_filter_core.cpp
+)
+target_link_libraries(msckf_vio_core
+  ${OpenCV_LIBRARIES}
+)
+target_include_directories(msckf_vio_core PUBLIC
+  include
+  ${EIGEN3_INCLUDE_DIR}
+  ${OpenCV_INCLUDE_DIRS}
+)
+
+# Server library - ROS dependent
 add_library(msckf_vio_lib SHARED
-  src/msckf_vio.cpp
-  src/utils.cpp
+  src/server/msckf_vio_node.cpp
+  src/server/utils.cpp
 )
 target_link_libraries(msckf_vio_lib
+  msckf_vio_core
   ${SUITESPARSE_LIBRARIES}
   ${PCL_LIBRARIES}
   ${OpenCV_LIBRARIES}
@@ -82,8 +99,12 @@ ament_target_dependencies(msckf_vio_lib
 )
 
 add_library(image_processor_lib SHARED
-  src/image_processor.cpp
-  src/utils.cpp
+  src/server/image_processor_node.cpp
+  src/server/utils.cpp
+)
+target_link_libraries(image_processor_lib
+  msckf_vio_core
+  ${OpenCV_LIBRARIES}
 )
 ament_target_dependencies(image_processor_lib
   rclcpp
@@ -100,11 +121,11 @@ ament_target_dependencies(image_processor_lib
   Boost
 )
 
-add_executable(msckf_vio_node src/msckf_vio_main.cpp)
+add_executable(msckf_vio_node src/server/server_msckf_vio.cpp)
 target_link_libraries(msckf_vio_node msckf_vio_lib)
 ament_target_dependencies(msckf_vio_node rclcpp)
 
-add_executable(image_processor_node src/image_processor_main.cpp)
+add_executable(image_processor_node src/server/server_image_processor.cpp)
 target_link_libraries(image_processor_node image_processor_lib)
 ament_target_dependencies(image_processor_node rclcpp)
 
@@ -117,6 +138,7 @@ rosidl_target_interfaces(msckf_vio_node ${PROJECT_NAME} "rosidl_typesupport_cpp"
 rosidl_target_interfaces(image_processor_node ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 install(TARGETS
+  msckf_vio_core
   msckf_vio_lib
   image_processor_lib
   msckf_vio_node

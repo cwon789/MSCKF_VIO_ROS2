@@ -1,9 +1,3 @@
-/*
- * COPYRIGHT AND PERMISSION NOTICE
- * Penn Software MSCKF_VIO
- * Copyright (C) 2017 The Trustees of the University of Pennsylvania
- * All rights reserved.
- */
 
 #include <iostream>
 #include <algorithm>
@@ -16,22 +10,18 @@
 
 #include <msckf_vio/msg/camera_measurement.hpp>
 #include <msckf_vio/msg/tracking_info.hpp>
-#include <msckf_vio/image_processor.h>
-#include <msckf_vio/utils.h>
+#include <msckf_vio/image/image_processor.h>
+#include <msckf_vio/utils/utils.h>
+#include <msckf_vio/utils/ros_conversions.h>
 #include <rmw/qos_profiles.h>
 #include <rclcpp_components/register_node_macro.hpp>
 
 using namespace std;
 using namespace cv;
 using namespace Eigen;
+using namespace msckf_vio::ros_utils;
 using std::placeholders::_1;
 using std::placeholders::_2;
-
-namespace {
-inline double toSec(const builtin_interfaces::msg::Time &t) {
-  return rclcpp::Time(t).seconds();
-}
-}  // namespace
 
 namespace msckf_vio {
 ImageProcessor::ImageProcessor(const rclcpp::NodeOptions& options) :

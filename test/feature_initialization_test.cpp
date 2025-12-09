@@ -1,9 +1,3 @@
-/*
- * COPYRIGHT AND PERMISSION NOTICE
- * Penn Software MSCKF_VIO
- * Copyright (C) 2017 The Trustees of the University of Pennsylvania
- * All rights reserved.
- */
 
 #include <iostream>
 #include <vector>
@@ -16,8 +10,8 @@
 #include <gtest/gtest.h>
 #include <random>
 
-#include <msckf_vio/cam_state.h>
-#include <msckf_vio/feature.hpp>
+#include <msckf_vio/state/cam_state.h>
+#include <msckf_vio/state/feature.hpp>
 
 
 using namespace std;

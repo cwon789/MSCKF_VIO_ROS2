@@ -1,9 +1,3 @@
-/*
- * COPYRIGHT AND PERMISSION NOTICE
- * Penn Software MSCKF_VIO
- * Copyright (C) 2017 The Trustees of the University of Pennsylvania
- * All rights reserved.
- */
 
 #ifndef MSCKF_VIO_CAM_STATE_H
 #define MSCKF_VIO_CAM_STATE_H
@@ -12,7 +6,7 @@
 #include <vector>
 #include <Eigen/Dense>
 
-#include "imu_state.h"
+#include "msckf_vio/state/imu_state.h"
 
 namespace msckf_vio {
 /*

@@ -1,14 +1,8 @@
-/*
- * COPYRIGHT AND PERMISSION NOTICE
- * Penn Software MSCKF_VIO
- * Copyright (C) 2017 The Trustees of the University of Pennsylvania
- * All rights reserved.
- */
 
 #include <iostream>
 #include <Eigen/Dense>
 #include <gtest/gtest.h>
-#include <msckf_vio/math_utils.hpp>
+#include <msckf_vio/utils/math_utils.hpp>
 
 using namespace std;
 using namespace Eigen;

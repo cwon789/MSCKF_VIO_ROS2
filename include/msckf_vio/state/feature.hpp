@@ -1,9 +1,3 @@
-/*
- * COPYRIGHT AND PERMISSION NOTICE
- * Penn Software MSCKF_VIO
- * Copyright (C) 2017 The Trustees of the University of Pennsylvania
- * All rights reserved.
- */
 
 #ifndef MSCKF_VIO_FEATURE_H
 #define MSCKF_VIO_FEATURE_H
@@ -16,9 +10,9 @@
 #include <Eigen/Geometry>
 #include <Eigen/StdVector>
 
-#include "math_utils.hpp"
-#include "imu_state.h"
-#include "cam_state.h"
+#include "msckf_vio/utils/math_utils.hpp"
+#include "msckf_vio/state/imu_state.h"
+#include "msckf_vio/state/cam_state.h"
 
 namespace msckf_vio {
 

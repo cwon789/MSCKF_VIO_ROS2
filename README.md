@@ -1,7 +1,62 @@
 # MSCKF\_VIO (ROS 2 Foxy, Ubuntu 20.04)
 
-Stereo MSCKF VIO that takes synchronized stereo images + IMU and publishes real-time 6-DoF pose.  
+Stereo MSCKF VIO that takes synchronized stereo images + IMU and publishes real-time 6-DoF pose.
 Video: [demo](https://www.youtube.com/watch?v=jxfJFgzmNSw&t=3s) · Paper draft: [arXiv](https://arxiv.org/abs/1712.00036)
+
+## Attribution
+
+This code is based on [KumarRobotics/msckf_vio](https://github.com/KumarRobotics/msckf_vio) and has been refactored and adapted for improved modularity and maintainability.
+
+## Architecture
+
+The codebase is organized into layered components with clear separation of concerns:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     ROS 2 Interface Layer                    │
+│  ┌──────────────────────┐      ┌──────────────────────────┐ │
+│  │  Image Processor     │      │      VIO Server          │ │
+│  │  (image_processor)   │      │    (msckf_vio_node)      │ │
+│  │  - Callbacks         │      │    - Callbacks           │ │
+│  │  - Message Conv.     │      │    - Message Conv.       │ │
+│  │  - Parameter Load    │      │    - Parameter Load      │ │
+│  │  - Publishers        │      │    - Publishers          │ │
+│  └──────────┬───────────┘      └───────────┬──────────────┘ │
+└─────────────┼──────────────────────────────┼────────────────┘
+              │                              │
+              ↓                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│                     Core Algorithm Layer                     │
+│          (ROS-independent, pure C++ with Eigen)              │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │            MsckfFilterCore                           │   │
+│  │  - State Management (IMU, Camera States)             │   │
+│  │  - Process Model (IMU Integration)                   │   │
+│  │  - Measurement Update (Kalman Filter)                │   │
+│  │  - State Augmentation                                │   │
+│  │  - Feature Jacobian Computation                      │   │
+│  │  - Gating Test & QR Decomposition                    │   │
+│  └──────────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │       State Definitions (IMUState, CAMState)         │   │
+│  └──────────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │          Conversion & Math Utilities                 │   │
+│  └──────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+              │
+              ↓
+┌─────────────────────────────────────────────────────────────┐
+│                  External Dependencies                       │
+│        Eigen3, OpenCV, SuiteSparse (SPQR), Boost             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Key Design Principles:**
+
+- **Core Layer**: Pure algorithm implementation with zero ROS dependencies, enabling reusability and independent testing
+- **Server Layer**: Thin ROS2 wrapper that handles message conversion, callbacks, and parameter loading
+- **Inheritance**: Server classes inherit from both `rclcpp::Node` and core filter classes for clean separation
 
 ## Requirements
 - ROS 2 Foxy on Ubuntu 20.04
