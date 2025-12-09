@@ -854,3 +854,16 @@ void MsckfVio::publish(const rclcpp::Time& time) {
 } // namespace msckf_vio
 
 RCLCPP_COMPONENTS_REGISTER_NODE(msckf_vio::MsckfVio)
+
+// Main entry point
+int main(int argc, char **argv) {
+  rclcpp::init(argc, argv);
+  rclcpp::NodeOptions options;
+  options.use_intra_process_comms(true);
+
+  auto node = std::make_shared<msckf_vio::MsckfVio>(options);
+  rclcpp::spin(node);
+
+  rclcpp::shutdown();
+  return 0;
+}
